@@ -8,30 +8,39 @@
 import UIKit
 
 class ViewController: UIViewController {
-
     @IBOutlet weak var questionLabel: UILabel!
     
     var currentQuestionNum: Int = 0
-    
-    // 問題
-        let questions: [[String: Any]] = [
+   
+    // 問題をここに追加
+        var questions: [[String: Any]] = [
             [
-                "question": "iPhoneアプリを開発する統合環境はZcodeである",
+                "question": "問題がないやんけ。はよ問題を作りなはれ！！！",
                 "answer": false
-            ],
-            [
-                "question": "Xcode画面の右側にはユーティリティーズがある",
-                "answer": true
-            ],
-            [
-                "question": "UILabelは文字列を表示する際に利用する",
-                "answer": true
             ]
+           
         ]
     override func viewDidLoad() {
         super.viewDidLoad()
         showQuestion()
+        
+        // プロパティの初期化
+           currentQuestionNum = 0
+           questions = [
+               [
+                   "question": "問題がないやんけ。はよ問題を作りなはれ！！！",
+                   "answer": false
+               ],
+               // 他の問題を追加
+           ]
     }
+    //ボタンが押されたときにプロパティの値を変更
+    func nextQuestion() {
+        if currentQuestionNum < questions.count - 1 {
+            currentQuestionNum += 1
+        }
+    }
+    
     //問題を表示する関数
     func showQuestion(){
         let question = questions[currentQuestionNum]
@@ -42,10 +51,8 @@ class ViewController: UIViewController {
             
             
         }
-        /*
-         
-         
-         */
+
+        
     }
     //回答チェックの関数 正解なら次の問題を表示
     func checkAnswer(yourAnswer: Bool){
