@@ -10,83 +10,88 @@ import UIKit
 class ViewController: UIViewController {
     @IBOutlet weak var questionLabel: UILabel!
     
+    
+    
+    // Put Question number
     var currentQuestionNum: Int = 0
-   
-    // 問題をここに追加
-        var questions: [[String: Any]] = [
-            [
-                "question": "問題がないやんけ。はよ問題を作りなはれ！！！",
-                "answer": false
-            ]
-           
-        ]
+    
+    // 問題
+    var questions: [[String: Any]] = [
+//        [
+//            "question": "iPhoneアプリを開発する統合環境はZcodeである",
+//            "answer": false
+//        ],
+//        [
+//            "question": "Xcode画面の右側にはユーティリティーズがある",
+//            "answer": true
+//        ],
+//        [
+//            "question": "UILabelは文字列を表示する際に利用する",
+//            "answer": true
+//        ]
+    ]
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        showQuestion()
-        
-        // プロパティの初期化
-           currentQuestionNum = 0
-           questions = [
-               [
-                   "question": "問題がないやんけ。はよ問題を作りなはれ！！！",
-                   "answer": false
-               ],
-               // 他の問題を追加
-           ]
+        showQestion()
+        // Display question after loading
     }
-    //ボタンが押されたときにプロパティの値を変更
-    func nextQuestion() {
-        if currentQuestionNum < questions.count - 1 {
-            currentQuestionNum += 1
+    
+    
+    // Display question
+    func showQestion(){
+        if currentQuestionNum >= questions.count {
+            questionLabel.text = "問題がありません"
+            return
+        }
+        
+        let question = questions[currentQuestionNum]
+        
+        if let que = question["question"] as? String {
+            questionLabel.text = que
         }
     }
     
-    //問題を表示する関数
-    func showQuestion(){
-        let question = questions[currentQuestionNum]
-        
-        
-        if let que = question["question"]as? String{
-            questionLabel.text = que
-            
-            
-        }
-
-        
-    }
-    //回答チェックの関数 正解なら次の問題を表示
+    // Check answer is corrent proceed next question
     func checkAnswer(yourAnswer: Bool){
+        // 現在の問題番号がquestionsの範囲外である場合、アラートを表示して関数を終了
+        if currentQuestionNum >= questions.count {
+            showAlert(message: "問題がありません")
+            return
+        }
         let question = questions[currentQuestionNum]
         
-        if let ans = question["answer"] as? Bool {
+        if let ans = question["answer"] as? Bool{
             if yourAnswer == ans {
-                
-                //正解
-                //currentQuestionNumを１足して次の問題に進む
+                // When correct answer
+                // Plus 1 to currentQuestionNum and next question
                 currentQuestionNum += 1
                 showAlert(message: "正解!")
-            }else{
-                //不正解
-                showAlert(message: "不正解👿")
+            } else {
+                // When incorrect
+                showAlert(message: "不正解!")
             }
-        }else{
-            print("答えが入ってません")
-            return
             
+        } else { // When not answer
+            print("答えが入っていません")
+            return
         }
-        //currentuestionNumの値が問題数以上なら最初の問題へ
+        // if currentQuestionNum more tha qty of Question, back to initial question
         if currentQuestionNum >= questions.count {
             currentQuestionNum = 0
         }
-        showQuestion() //正解→次の問題 不正解→同じ問題
-        func showAlert(message: String) {
-                let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)
-                let close = UIAlertAction(title: "閉じる", style: .cancel)
-                alert.addAction(close)
-                present(alert, animated: true, completion: nil)
-            }
-        }
+        
+        
+        showQestion() //Correct -> next Question, Incorrect -> Same question.
+    }
     
+    // アラートを表示する関数
+    func showAlert(message: String) {
+        let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)
+        let close = UIAlertAction(title: "閉じる", style: .cancel, handler: nil)
+        alert.addAction(close)
+        present(alert, animated: true, completion: nil)
+    }
     
     @IBAction func tappedNoButton(_ sender: Any) {
         checkAnswer(yourAnswer: false)
@@ -96,7 +101,20 @@ class ViewController: UIViewController {
         checkAnswer(yourAnswer: true)
     }
     
-    
+    // 問題作成画面に遷移するボタンのアクション
+    @IBAction func createQuestionButtonTapped(_ sender: Any) {
+        let createQuestionVC = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "CreateQuestionViewController") as! CreateQuestionViewController
+        createQuestionVC.questions = self.questions
+        createQuestionVC.delegate = self // ViewControllerをデリゲートとして設定
+        present(createQuestionVC, animated: true, completion: nil)
+    }
 
 }
-
+// CreateQuestionViewControllerからのデータを受け取るための拡張
+extension ViewController: CreateQuestionDelegate {
+    func didUpdateQuestions(updatedQuestions: [[String : Any]]) {
+        self.questions = updatedQuestions
+        currentQuestionNum = 0
+        showQestion()
+    }
+}
